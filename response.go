@@ -10,14 +10,14 @@ type Response interface {
 	GetBody() io.ReadCloser
 }
 
-func newResponse(stdResonse http.Response) *response {
+func newResponse(stdResonse *http.Response) *response {
 	return &response{
 		stdResponse: stdResonse,
 	}
 }
 
 type response struct {
-	stdResponse http.Response
+	stdResponse *http.Response
 }
 
 func (r *response) GetStatusCode() int {

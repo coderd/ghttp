@@ -1,11 +1,11 @@
 package ghttp
 
 import (
+	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -17,7 +17,7 @@ type Config struct {
 type Options struct {
 	Headers map[string]string
 	Json    interface{}
-	Body    io.Reader
+	Body    io.ReadCloser
 }
 
 type client struct {
@@ -31,49 +31,37 @@ func NewClient(config *Config) *client {
 }
 
 func (c *client) Get(uri string, options *Options) (Response, error) {
-	return c.request(http.MethodGet, uri, Options)
+	return c.Request("GET", uri, options)
 }
 
 func (c *client) Head(uri string, options *Options) (Response, error) {
-	return c.request(http.MethodHead, uri, Options)
+	return c.Request("HEAD", uri, options)
 }
 
 func (c *client) Post(uri string, options *Options) (Response, error) {
-	return c.request(http.MethodPost, uri, Options)
+	return c.Request("POST", uri, options)
 }
 
 func (c *client) Put(uri string, options *Options) (Response, error) {
-	return c.request(http.MethodPut, uri, Options)
+	return c.Request("PUT", uri, options)
 }
 
 func (c *client) Patch(uri string, options *Options) (Response, error) {
-	return c.request(http.MethodPatch, uri, Options)
+	return c.Request("PATCH", uri, options)
 }
 
 func (c *client) Delete(uri string, options *Options) (Response, error) {
-	return c.request(http.MethodDelete, uri, Options)
+	return c.Request("DELETE", uri, options)
 }
 
-func (c *client) request(method, uri string, options *Options) (Response, error) {
-	var (
-		body io.Reader
-	)
-	if options.Json != nil {
-		if json, err := json.Marshal(v); err != nil {
-			return err
-		}
-		body = strings.NewReader(string(json))
-	} else if options.Body != nil {
-		body = options.Body
-	}
-
-	req, err := http.NewRequest(method, c.config.BaseUri+uri, body)
+func (c *client) Request(method, uri string, options *Options) (Response, error) {
+	req, err := http.NewRequest(method, c.config.BaseUri+uri, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for key, value := range options.Headers {
-		req.Header.Add(key, value)
+	if err = c.processOptions(req, options); err != nil {
+		return nil, err
 	}
 
 	httpClient := &http.Client{
@@ -81,8 +69,35 @@ func (c *client) request(method, uri string, options *Options) (Response, error)
 	}
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	return newResponse(resp), nil
+}
+
+func (c *client) processOptions(request *http.Request, options *Options) error {
+	if options == nil {
+		return nil
+	}
+
+	// Process headers
+	for key, value := range options.Headers {
+		request.Header.Add(key, value)
+	}
+
+	// Process body
+	var body io.ReadCloser
+	if options.Json != nil {
+		b, err := json.Marshal(options.Json)
+		if err != nil {
+			return err
+		}
+
+		body = ioutil.NopCloser(bytes.NewReader(b))
+	} else if options.Body != nil {
+		body = options.Body
+	}
+	request.Body = body
+
+	return nil
 }
