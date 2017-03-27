@@ -92,8 +92,9 @@ func (c *client) processOptions(request *http.Request, options *Options) error {
 		if err != nil {
 			return err
 		}
-
 		body = ioutil.NopCloser(bytes.NewReader(b))
+
+		request.Header.Add("Content-Type", "application/json")
 	} else if options.Body != nil {
 		body = options.Body
 	}

@@ -3,6 +3,7 @@ package ghttp
 import (
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 	"time"
 )
@@ -22,7 +23,7 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("bar"))
 
 	case "HEAD":
-		w.Write([]byte("bar"))
+		w.WriteHeader(200)
 
 	case "POST":
 		b, err := ioutil.ReadAll(req.Body)
@@ -148,6 +149,15 @@ var tests = []struct {
 		},
 		expectedStatus: 201,
 		expectedBody:   `{"Foo":"bar"}`,
+	},
+	{
+		method: "POST",
+		path:   "/foo",
+		options: &Options{
+			Body: ioutil.NopCloser(strings.NewReader("bar")),
+		},
+		expectedStatus: 201,
+		expectedBody:   `bar`,
 	},
 	{
 		method: "PUT",
