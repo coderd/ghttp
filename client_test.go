@@ -17,15 +17,17 @@ type httpHandler struct {
 }
 
 func (h *httpHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	switch req.Method {
-	case "GET":
+	action := req.Method + " " + req.URL.Path
+
+	switch action {
+	case "GET /foo":
 		w.WriteHeader(200)
 		w.Write([]byte("bar"))
 
-	case "HEAD":
+	case "HEAD /foo":
 		w.WriteHeader(200)
 
-	case "POST":
+	case "POST /foo":
 		b, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			h.t.Error(err)
@@ -33,7 +35,7 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(201)
 		w.Write(b)
 
-	case "PUT":
+	case "PUT /foo":
 		b, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			h.t.Error(err)
@@ -41,7 +43,7 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(200)
 		w.Write(b)
 
-	case "PATCH":
+	case "PATCH /foo":
 		b, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			h.t.Error(err)
@@ -49,8 +51,16 @@ func (h *httpHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		w.WriteHeader(200)
 		w.Write(b)
 
-	case "DELETE":
+	case "DELETE /foo":
 		w.WriteHeader(204)
+
+	case "GET /host":
+		w.WriteHeader(200)
+		w.Write([]byte(req.Host))
+
+	case "GET /header":
+		w.WriteHeader(200)
+		w.Write([]byte(req.Header.Get("X-Foo")))
 	}
 }
 
@@ -191,5 +201,28 @@ var tests = []struct {
 		options:        nil,
 		expectedStatus: 204,
 		expectedBody:   "",
+	},
+
+	{
+		method: "GET",
+		path:   "/host",
+		options: &Options{
+			Headers: map[string]string{
+				"Host": "example.com",
+			},
+		},
+		expectedStatus: 200,
+		expectedBody:   "example.com",
+	},
+	{
+		method: "GET",
+		path:   "/header",
+		options: &Options{
+			Headers: map[string]string{
+				"X-Foo": "bar",
+			},
+		},
+		expectedStatus: 200,
+		expectedBody:   "bar",
 	},
 }

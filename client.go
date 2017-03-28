@@ -97,7 +97,11 @@ func (c *Client) processOptions(request *http.Request, options *Options) error {
 
 	// Process headers
 	for key, value := range options.Headers {
-		request.Header.Add(key, value)
+		if key == "Host" {
+			request.Host = value
+		} else {
+			request.Header.Add(key, value)
+		}
 	}
 
 	return nil
