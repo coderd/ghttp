@@ -20,41 +20,41 @@ type Options struct {
 	Body    io.ReadCloser
 }
 
-type client struct {
+type Client struct {
 	config *Config
 }
 
-func NewClient(config *Config) *client {
-	return &client{
+func NewClient(config *Config) *Client {
+	return &Client{
 		config: config,
 	}
 }
 
-func (c *client) Get(uri string, options *Options) (Response, error) {
+func (c *Client) Get(uri string, options *Options) (Response, error) {
 	return c.Request("GET", uri, options)
 }
 
-func (c *client) Head(uri string, options *Options) (Response, error) {
+func (c *Client) Head(uri string, options *Options) (Response, error) {
 	return c.Request("HEAD", uri, options)
 }
 
-func (c *client) Post(uri string, options *Options) (Response, error) {
+func (c *Client) Post(uri string, options *Options) (Response, error) {
 	return c.Request("POST", uri, options)
 }
 
-func (c *client) Put(uri string, options *Options) (Response, error) {
+func (c *Client) Put(uri string, options *Options) (Response, error) {
 	return c.Request("PUT", uri, options)
 }
 
-func (c *client) Patch(uri string, options *Options) (Response, error) {
+func (c *Client) Patch(uri string, options *Options) (Response, error) {
 	return c.Request("PATCH", uri, options)
 }
 
-func (c *client) Delete(uri string, options *Options) (Response, error) {
+func (c *Client) Delete(uri string, options *Options) (Response, error) {
 	return c.Request("DELETE", uri, options)
 }
 
-func (c *client) Request(method, uri string, options *Options) (Response, error) {
+func (c *Client) Request(method, uri string, options *Options) (Response, error) {
 	req, err := http.NewRequest(method, c.config.BaseUri+uri, nil)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (c *client) Request(method, uri string, options *Options) (Response, error)
 	return newResponse(resp), nil
 }
 
-func (c *client) processOptions(request *http.Request, options *Options) error {
+func (c *Client) processOptions(request *http.Request, options *Options) error {
 	if options == nil {
 		return nil
 	}
