@@ -100,7 +100,7 @@ func TestRequest(t *testing.T) {
 
 		status := resp.GetStatusCode()
 		if status != test.expectedStatus {
-			t.Errorf("Got status %d", status, test.expectedStatus)
+			t.Errorf("Got status %d, expected %d", status, test.expectedStatus)
 		}
 
 		body := resp.GetBody()
