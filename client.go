@@ -80,11 +80,6 @@ func (c *client) processOptions(request *http.Request, options *Options) error {
 		return nil
 	}
 
-	// Process headers
-	for key, value := range options.Headers {
-		request.Header.Add(key, value)
-	}
-
 	// Process body
 	var body io.ReadCloser
 	if options.Json != nil {
@@ -99,6 +94,11 @@ func (c *client) processOptions(request *http.Request, options *Options) error {
 		body = options.Body
 	}
 	request.Body = body
+
+	// Process headers
+	for key, value := range options.Headers {
+		request.Header.Add(key, value)
+	}
 
 	return nil
 }
