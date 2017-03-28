@@ -21,12 +21,12 @@ type Options struct {
 }
 
 type Client struct {
-	config *Config
+	Config *Config
 }
 
 func NewClient(config *Config) *Client {
 	return &Client{
-		config: config,
+		Config: config,
 	}
 }
 
@@ -55,7 +55,7 @@ func (c *Client) Delete(uri string, options *Options) (Response, error) {
 }
 
 func (c *Client) Request(method, uri string, options *Options) (Response, error) {
-	req, err := http.NewRequest(method, c.config.BaseUri+uri, nil)
+	req, err := http.NewRequest(method, c.Config.BaseUri+uri, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (c *Client) Request(method, uri string, options *Options) (Response, error)
 	}
 
 	httpClient := &http.Client{
-		Timeout: c.config.Timeout,
+		Timeout: c.Config.Timeout,
 	}
 	resp, err := httpClient.Do(req)
 	if err != nil {
