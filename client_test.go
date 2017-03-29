@@ -129,7 +129,6 @@ var tests = []struct {
 	method         string
 	path           string
 	options        *Options
-	responseBody   string
 	expectedStatus int
 	expectedBody   string
 }{
