@@ -1,2 +1,2 @@
 # ghttp
-A HTTP client for Golang.
+A HTTP client for the Go language.
